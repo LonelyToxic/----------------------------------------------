@@ -36,7 +36,20 @@ addTaskButton.addEventListener('click', function() {
             taskList.removeChild(taskItem);
         })
         editButton.addEventListener('click', function() {
-            
+            if (editButton.textContent === 'Редактировать') {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = taskTextElement.textContent;
+                taskItem.insertBefore(input, taskTextElement);
+                taskItem.removeChild(taskTextElement);
+                editButton.textContent = 'Сохранить';
+            } else if (editButton.textContent === 'Сохранить') {
+                const input = taskItem.querySelector('input');
+                taskTextElement.textContent = input.value;
+                taskItem.insertBefore(taskTextElement, input);
+                taskItem.removeChild(input);
+                editButton.textContent = 'Редактировать';
+            }
         })
         
     } else {
