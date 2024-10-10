@@ -2,6 +2,25 @@ const addTaskButton = document.getElementById('add-task');
 const taskInput = document.getElementById('new-task');
 const taskList = document.getElementById('task-list');
 
+document.addEventListener('DOMContentLoaded', loadTasksFromLocalStorage);
+
+function updateLocalStorage() {
+
+    const tasks = [];
+
+    document.querySelectorAll('#task-list li').forEach(taskItem => {
+        const taskText = taskItem.querySelector('span').textContent;
+        const isCompleted = taskItem.querySelector('input[type="checkbox"]').checked;
+
+        tasks.push({
+            text: taskText,
+            completed: isCompleted
+        });
+    });
+
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+
 addTaskButton.addEventListener('click', function() {
     const taskText = taskInput.value;
     if (taskText.trim() !== '') {
@@ -87,3 +106,69 @@ addTaskButton.addEventListener('click', function() {
         alert('Введите задачу');
     }
 });
+
+function loadTasksFromLocalStorage() {
+    const storedTasks = localStorage.getItem('tasks');
+
+    if (storedTasks) {
+        const tasks = JSON.parse(storedTasks);
+
+        tasks.forEach(task => {
+            const taskItem = document.createElement('li');
+            const taskTextElement = document.createElement('span');
+            taskTextElement.textContent = task.text;
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Удалить';
+
+            const editButton = document.createElement('button');
+            editButton.textContent = 'Редактировать';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = task.completed;
+
+            taskTextElement.style.textDecoration = checkbox.checked ? 'line-through' : 'none';
+
+            taskItem.appendChild(taskTextElement);
+            taskItem.appendChild(deleteButton);
+            taskItem.appendChild(editButton);
+            taskItem.appendChild(checkbox);
+
+            taskList.appendChild(taskItem);
+
+            deleteButton.addEventListener('click', function() {
+                taskList.removeChild(taskItem);
+                updateLocalStorage;
+            });
+
+            editButton.addEventListener('click', function() {
+                if (editButton.textContent === 'Редактировать') {
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = taskTextElement.textContent;
+                    taskItem.insertBefore(input, taskTextElement);
+                    taskItem.removeChild(taskTextElement);
+                    editButton.textContent = 'Сохранить';
+                    }
+                    else if (editButton.textContent === 'Сохранить') {
+                    const input = taskItem.querySelector('input');
+                    taskTextElement.textContent = input.value;
+                    taskItem.insertBefore(taskTextElement, input);
+                    taskItem.removeChild(input);
+                    editButton.textContent = 'Редактировать';
+                }
+                updateLocalStorage();
+            });
+
+            checkbox.addEventListener('change', function() {
+                if (checkbox.checked) {
+                    taskTextElement.style.textDecoration = 'line-through';
+                } else {
+                    taskTextElement.style.textDecoration = 'none';
+                }
+                updateLocalStorage();
+            });
+        });
+    }
+}
